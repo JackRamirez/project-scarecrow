@@ -231,13 +231,13 @@ def load_out(cap, capture_mode, output_video, output_video_res, cap_fps, video_f
         return None
 
 
-def cleanup():
-    """ cleans the videowriter and capture """
-    if out != None:
-        out.release()
+def cleanup(cap, out):
+    """ cleans the capture and videowriter """
     if cap != None:
         cap.release()
         cv2.destroyAllWindows()
+    if out != None:
+        out.release()
         
 
 def display_frame(frame):
@@ -519,6 +519,7 @@ def main():
 
     labels = load_labels(LABELS)
     frame_count = 0
+                       
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -529,14 +530,16 @@ def main():
         display_frame(cv2_im)
         out.write(cv2_im)
 
-        frame_count += 1
-        seconds = (frame_count/cap_fps)%60
-        debug_print(seconds)
-        if (cv2.waitKey(1) & 0xFF == ord('q')) or (seconds > TIME_LIMIT):
+        if RECORD_MODE:
+            frame_count += 1
+            seconds = (frame_count/cap_fps)%60
+            debug_print(seconds)
+                       
+        if (cv2.waitKey(1) & 0xFF == ord('q')) or (RECORD_MODE and seconds > TIME_LIMIT):
             debug_print("Ending capture")
             break
 
-    cleanup()
+    cleanup(cap, out)
 
 
 if __name__ == '__main__':
