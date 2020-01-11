@@ -81,6 +81,8 @@ global DEBUG_MODE = DEFAULT_DEBUG_MODE
 
 
 
+"""_____________output video_____________"""
+
 STD_DIMENSIONS = {
     '480p' : (640, 480),
     '720p' : (1280, 720),
@@ -93,10 +95,6 @@ VIDEO_TYPE = {
     'mp4' : cv2.VideoWriter_fourcc(*'XVID')
 }
 
-
-
-
-"""_____________output video_____________"""
 
 def change_res(cap, width, height):
     """ changes resolution of capture """
