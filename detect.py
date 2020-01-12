@@ -450,7 +450,7 @@ def get_ui():
     return ui
 
 
-def relay_bluetooth_detection(objs, width, height):
+def relay_bluetooth_detection(ui, objs, width, height):
     """ Get objects. Using dimensions of the bounding boxes of the objects, calculate
         the weighted middle point of all objects detected. From said coordinates,
         relay the proper action via bluetooth message. """
@@ -459,10 +459,10 @@ def relay_bluetooth_detection(objs, width, height):
     for obj in objs:
         x0, y0, x1, y1 = list(obj.bbox)
         x0, y0, x1, y1 = int(x0*width), int(y0*height), int(x1*width), int(y1*height)
-        center_x, center_y = (x1 - x0)/2, (y1 - y2)/2
+        center_x, center_y = (x1 - x0)/2, (y0 - y1)/2
         break
 
-    if (len(detected)) > 0:
+    if (len(objs)) > 0:
         """
         if (x_pos > (width/2) - (w/2) + (width/4)):
             ui.sendBluetoothMessage("</ON/C/4/>")
@@ -510,6 +510,9 @@ def main():
     MONITOR = args.monitor
     DEBUG_MODE = args.debug_mode
 
+
+    ui = get_ui()
+
     
     debug_print("Loading {} with {} labels.".format(MODEL, LABELS))
     interpreter = common.make_interpreter(MODEL)
@@ -523,14 +526,11 @@ def main():
     cap_width  = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     cap_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     
-    #print(CAPTURE_MODE, OUTPUT_VIDEO, OUTPUT_VIDEO_RES, cap_fps, OUTPUT_VIDEO_FPS)
     out = load_out(cap, CAPTURE_MODE, OUTPUT_VIDEO, OUTPUT_VIDEO_RES, cap_fps, OUTPUT_VIDEO_FPS)
 
     labels = load_labels(LABELS)
     frame_count = 0
-    
-    #print(cap == None)
-    #print(out == None)
+
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -540,9 +540,11 @@ def main():
         objs = []
         cv2_im, objs = detect(frame, interpreter, labels, THRESHOLD, TOP_K)
         display_frame(cv2_im)
-        out.write(cv2_im)
+
+        relay_bluetooth_detection(ui, objs, cap_width, cap_height)
 
         if RECORD_MODE:
+            out.write(cv2_im)
             frame_count += 1
             seconds = (frame_count/cap_fps)%60
             debug_print(seconds)
@@ -553,7 +555,8 @@ def main():
     
 
     cleanup(cap, out)
-    print("success")
+
+    print("Successful termination")
 
 
 if __name__ == '__main__':
