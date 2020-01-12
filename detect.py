@@ -27,6 +27,10 @@ python3 detect.py \
   --model ${TEST_DATA}/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite \
   --labels ${TEST_DATA}/coco_labels.txt
 
+
+
+
+sudo python3 detect.py
 """
 import argparse
 import collections
@@ -57,7 +61,7 @@ BLUETOOTH_MODULE_PORT = 1
 DEFAULT_MODEL_DIR = 'models'
 DEFAULT_MODEL = 'dog_edgetpu.tflite'
 DEFAULT_LABELS = 'dog_labels.txt'
-DEFAULT_TOP_K = 3
+DEFAULT_TOP_K = 1
 DEFAULT_THRESHOLD = 0.66
 DEFAULT_CAPTURE_MODE = 'video'
 
