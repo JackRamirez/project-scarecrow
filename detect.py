@@ -59,18 +59,18 @@ DEFAULT_MODEL = 'dog_edgetpu.tflite'
 DEFAULT_LABELS = 'dog_labels.txt'
 DEFAULT_TOP_K = 3
 DEFAULT_THRESHOLD = 0.66
-
+DEFAULT_CAPTURE_MODE = 'video'
 
 DEFAULT_INPUT_VIDEO_DIR = 'input_videos'
-DEFAULT_INPUT_VIDEO_FILE = 'dog_demo.mp4'
+DEFAULT_INPUT_VIDEO_FILE = 'dog_park.mp4'
 
 DEFAULT_OUTPUT_VIDEO_DIR = 'output_videos'
 DEFAULT_OUTPUT_VIDEO_FILE = 'output_video.avi'
 DEFAULT_OUTPUT_VIDEO_FPS = 24
 DEFAULT_OUTPUT_VIDEO_RES = '720p'
-DEFAULT_OUTPUT_VIDEO_TIME = 10 # seconds
+DEFAULT_OUTPUT_VIDEO_TIME = 5 # seconds
 
-DEFAULT_RECORD_MODE = False
+DEFAULT_RECORD_MODE = True
 DEFAULT_MONITOR = False
 DEFAULT_DEBUG_MODE = True
 
@@ -252,7 +252,7 @@ def display_frame(frame):
 
 """_____________configure detection frames_____________"""
 
-def append_objs_to_img(cv2_im, objs, labels):input_vide
+def append_objs_to_img(cv2_im, objs, labels):
     """ given a frame/image, append bounding boxes to the image
         correlated to each object's position and return it """
     height, width, channels = cv2_im.shape
@@ -268,7 +268,7 @@ def append_objs_to_img(cv2_im, objs, labels):input_vide
     return cv2_im
 
 
-def detect(frame, intepreter, labels, threshold, k):
+def detect(frame, interpreter, labels, threshold, k):
     """ detects objects in each frame
         returns the frame and a list of objects (boundary box) detected """
     cv2_im = frame
@@ -450,7 +450,8 @@ def relay_bluetooth_detection(objs, width, height):
     """ Get objects. Using dimensions of the bounding boxes of the objects, calculate
         the weighted middle point of all objects detected. From said coordinates,
         relay the proper action via bluetooth message. """
-    center_x = 0, center_y = 0
+    center_x = 0
+    center_y = 0
     for obj in objs:
         x0, y0, x1, y1 = list(obj.bbox)
         x0, y0, x1, y1 = int(x0*width), int(y0*height), int(x1*width), int(y1*height)
@@ -489,14 +490,14 @@ def relay_bluetooth_detection(objs, width, height):
 def main():
     args = get_arguments()
     MODEL = args.model
-    LABELS = args.label
+    LABELS = args.labels
     TOP_K = args.top_k
     THRESHOLD = args.threshold
     CAPTURE_MODE = args.capture_mode
     INPUT_VIDEO_DIR = args.input_video_dir
-    INPUT_VIDEO = str(os.path.join(INPUT_VIDEO_DIR, args.input_video)
-    OUTPUT_VIDEO_DIR = args.output_video
-    OUTPUT_VIDEO = str(os.path.join(OUTPUT_VIDEO_DIR, args.output_video)
+    INPUT_VIDEO = str(os.path.join(INPUT_VIDEO_DIR, args.input_video))
+    OUTPUT_VIDEO_DIR = args.output_video_dir
+    OUTPUT_VIDEO = str(os.path.join(OUTPUT_VIDEO_DIR, args.output_video))
     OUTPUT_VIDEO_RES = args.output_video_res
     OUTPUT_VIDEO_FPS = args.output_video_fps
     OUTPUT_VIDEO_TIME = args.output_video_time
@@ -517,19 +518,23 @@ def main():
     cap_fps = cap.get(cv2.CAP_PROP_FPS)
     cap_width  = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     cap_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
+    
+    #print(CAPTURE_MODE, OUTPUT_VIDEO, OUTPUT_VIDEO_RES, cap_fps, OUTPUT_VIDEO_FPS)
     out = load_out(cap, CAPTURE_MODE, OUTPUT_VIDEO, OUTPUT_VIDEO_RES, cap_fps, OUTPUT_VIDEO_FPS)
 
     labels = load_labels(LABELS)
     frame_count = 0
-                       
+    
+    #print(cap == None)
+    #print(out == None)
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
         objs = []
-        cv2_im, objs = detect(frame, intepreter, labels, THRESHOLD, TOP_K)
+        cv2_im, objs = detect(frame, interpreter, labels, THRESHOLD, TOP_K)
         display_frame(cv2_im)
         out.write(cv2_im)
 
@@ -538,11 +543,13 @@ def main():
             seconds = (frame_count/cap_fps)%60
             debug_print(seconds)
                        
-        if (cv2.waitKey(1) & 0xFF == ord('q')) or (RECORD_MODE and seconds > TIME_LIMIT):
+        if (cv2.waitKey(1) & 0xFF == ord('q')) or (RECORD_MODE and seconds > OUTPUT_VIDEO_TIME):
             debug_print("Ending capture")
             break
+    
 
     cleanup(cap, out)
+    print("success")
 
 
 if __name__ == '__main__':
