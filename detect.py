@@ -59,20 +59,20 @@ BLUETOOTH_MODULE_PORT = 1
 """_____________defaults_____________"""
 
 DEFAULT_MODEL_DIR = 'models'
-DEFAULT_MODEL = 'face_edgetpu.tflite'#'dog_edgetpu.tflite'
-DEFAULT_LABELS = 'coco_labels.txt'#'dog_labels.txt'
+DEFAULT_MODEL = 'face_edgetpu.tflite' #'dog_edgetpu.tflite'
+DEFAULT_LABELS = 'coco_labels.txt' #'dog_labels.txt'
 DEFAULT_TOP_K = 3
-DEFAULT_THRESHOLD = 0.66
-DEFAULT_CAPTURE_MODE = 'video'
+DEFAULT_THRESHOLD = 1
+DEFAULT_CAPTURE_MODE = 'camera' #'video'
 
 DEFAULT_INPUT_VIDEO_DIR = 'input_videos'
 DEFAULT_INPUT_VIDEO_FILE = 'dog_park.mp4'
 
 DEFAULT_OUTPUT_VIDEO_DIR = 'output_videos'
-DEFAULT_OUTPUT_VIDEO_FILE = 'output_video_face.avi'
+DEFAULT_OUTPUT_VIDEO_FILE = 'input_video_face.avi'
 DEFAULT_OUTPUT_VIDEO_FPS = 24
 DEFAULT_OUTPUT_VIDEO_RES = '720p'
-DEFAULT_OUTPUT_VIDEO_TIME = 5 # seconds
+DEFAULT_OUTPUT_VIDEO_TIME = 10 # seconds
 
 DEFAULT_RECORD_MODE = True
 DEFAULT_MONITOR = False
@@ -223,7 +223,7 @@ def load_out(cap, capture_mode, output_video, output_video_res, cap_fps, video_f
     dims = get_dims(cap, res=output_video_res)
     if RECORD_MODE:
         if capture_mode == 'camera':
-            out = cv2.VideoWriter(output_video, get_video_type(output_video), int(cap_fps), dims)
+            return cv2.VideoWriter(output_video, get_video_type(output_video), int(cap_fps), dims)
         elif capture_mode == 'video':
             if cap.isOpened():
                 ret, frame = cap.read()
@@ -233,7 +233,7 @@ def load_out(cap, capture_mode, output_video, output_video_res, cap_fps, video_f
                 debug_print("({},{})".format(fwidth, fheight))
                 return cv2.VideoWriter(output_video, get_video_type(output_video), video_fps, (fwidth, fheight))
         else:
-            out = cv2.VideoWriter(output_video, get_video_type(output_video), int(cap_fps), dims)
+            return cv2.VideoWriter(output_video, get_video_type(output_video), int(cap_fps), dims)
     else:
         return None
 
@@ -479,11 +479,13 @@ def relay_bluetooth_detection(ui, objs, width, height):
         else:
             ui.sendBluetoothMessage("</OFF/>")
         """
+        print("{} position".format(center_x, center_y))
         ui.setOutput(0, True)
     else:
         """
         ui.sendBluetoothMessage("</OFF/>")
         """
+        print("no face detected")
         ui.setOutput(0, False)
     
         
@@ -536,19 +538,23 @@ def main():
         ret, frame = cap.read()
         if not ret:
             break
-
+        """
         objs = []
         cv2_im, objs = detect(frame, interpreter, labels, THRESHOLD, TOP_K)
+        
         display_frame(cv2_im)
 
         relay_bluetooth_detection(ui, objs, cap_width, cap_height)
-
+        """
         if RECORD_MODE:
-            out.write(cv2_im)
+            out.write(frame) #cv2_im
+        
+        if DEBUG_MODE:
             frame_count += 1
             seconds = (frame_count/cap_fps)%60
             debug_print(seconds)
                        
+        # and               
         if (cv2.waitKey(1) & 0xFF == ord('q')) or (RECORD_MODE and seconds > OUTPUT_VIDEO_TIME):
             debug_print("Ending capture")
             break
