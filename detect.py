@@ -52,16 +52,16 @@ import time
 
 ENVIRONMENT = '/sys/firmware/devicetree/base/model'
 
-BLUETOOTH_MODULE_ADDRESS = "00:14:03:06:21:18"
+BLUETOOTH_MODULE_ADDRESS = '00:14:03:06:21:18'
 BLUETOOTH_MODULE_PORT = 1
 
 
 """_____________defaults_____________"""
 
 DEFAULT_MODEL_DIR = 'models'
-DEFAULT_MODEL = 'dog_edgetpu.tflite'
-DEFAULT_LABELS = 'dog_labels.txt'
-DEFAULT_TOP_K = 1
+DEFAULT_MODEL = 'face_edgetpu.tflite'#'dog_edgetpu.tflite'
+DEFAULT_LABELS = 'coco_labels.txt'#'dog_labels.txt'
+DEFAULT_TOP_K = 3
 DEFAULT_THRESHOLD = 0.66
 DEFAULT_CAPTURE_MODE = 'video'
 
@@ -69,7 +69,7 @@ DEFAULT_INPUT_VIDEO_DIR = 'input_videos'
 DEFAULT_INPUT_VIDEO_FILE = 'dog_park.mp4'
 
 DEFAULT_OUTPUT_VIDEO_DIR = 'output_videos'
-DEFAULT_OUTPUT_VIDEO_FILE = 'output_video.avi'
+DEFAULT_OUTPUT_VIDEO_FILE = 'output_video_face.avi'
 DEFAULT_OUTPUT_VIDEO_FPS = 24
 DEFAULT_OUTPUT_VIDEO_RES = '720p'
 DEFAULT_OUTPUT_VIDEO_TIME = 5 # seconds
