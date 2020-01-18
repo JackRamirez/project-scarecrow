@@ -69,12 +69,12 @@ DEFAULT_INPUT_VIDEO_DIR = 'input_videos'
 DEFAULT_INPUT_VIDEO_FILE = 'input_video_face.avi'
 
 DEFAULT_OUTPUT_VIDEO_DIR = 'output_videos'
-DEFAULT_OUTPUT_VIDEO_FILE = 'input_video_face.avi'
+DEFAULT_OUTPUT_VIDEO_FILE = 'output_video_face.avi'
 DEFAULT_OUTPUT_VIDEO_FPS = 24
 DEFAULT_OUTPUT_VIDEO_RES = '720p'
 DEFAULT_OUTPUT_VIDEO_TIME = 10 # seconds
 
-DEFAULT_RECORD_MODE = False
+DEFAULT_RECORD_MODE = True
 DEFAULT_MONITOR = False
 DEFAULT_DEBUG_MODE = True
 
@@ -555,7 +555,7 @@ def main():
             debug_print(seconds)
                        
         # and               
-        if (cv2.waitKey(1) & 0xFF == ord('q')) or (RECORD_MODE or seconds > OUTPUT_VIDEO_TIME):
+        if (cv2.waitKey(1) & 0xFF == ord('q')) or (RECORD_MODE and seconds > OUTPUT_VIDEO_TIME):
             debug_print("Ending capture")
             break
     
