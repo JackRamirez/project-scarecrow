@@ -59,17 +59,17 @@ BLUETOOTH_MODULE_PORT = 1
 """_____________defaults_____________"""
 
 DEFAULT_MODEL_DIR = 'models'
-DEFAULT_MODEL = 'face_edgetpu.tflite' #'dog_edgetpu.tflite'
-DEFAULT_LABELS = 'coco_labels.txt' #'dog_labels.txt'
+DEFAULT_MODEL = 'dog_edgetpu.tflite' #'face_edgetpu.tflite' 'dog_edgetpu.tflite'
+DEFAULT_LABELS = 'dog_labels.txt' #'coco_labels.txt' 'dog_labels.txt'
 DEFAULT_TOP_K = 3
-DEFAULT_THRESHOLD = 0.8
+DEFAULT_THRESHOLD = 0.6
 DEFAULT_CAPTURE_MODE = 'video' #'video' 'camera'
 
 DEFAULT_INPUT_VIDEO_DIR = 'input_videos'
-DEFAULT_INPUT_VIDEO_FILE = 'input_video_face.avi'
+DEFAULT_INPUT_VIDEO_FILE = 'dog_park.mp4' #'input_video_face.avi' 'dog_park.mp4'
 
 DEFAULT_OUTPUT_VIDEO_DIR = 'output_videos'
-DEFAULT_OUTPUT_VIDEO_FILE = 'output_video_face.avi'
+DEFAULT_OUTPUT_VIDEO_FILE = 'output_video_dog.avi' #'out_video_face.avi'
 DEFAULT_OUTPUT_VIDEO_FPS = 24
 DEFAULT_OUTPUT_VIDEO_RES = '720p'
 DEFAULT_OUTPUT_VIDEO_TIME = 10 # seconds
