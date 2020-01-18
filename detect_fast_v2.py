@@ -72,9 +72,9 @@ def main():
     default_labels = 'coco_labels.txt'
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', help='.tflite model path',
-                        default=os.path.join(default_model_dir,default_model))
+                        default=os.path.join('models','face_edgetpu.tflite'))
     parser.add_argument('--labels', help='label file path',
-                        default=os.path.join(default_model_dir, default_labels))
+                        default=os.path.join('models', 'coco_labels.txt'))
     parser.add_argument('--top_k', type=int, default=3,
                         help='number of categories with highest score to display')
     parser.add_argument('--camera_idx', type=int, help='Index of which video source to use. ', default = 0)
@@ -118,10 +118,19 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
+
+remember = set()
+
 def append_objs_to_img(cv2_im, objs, labels):
     height, width, channels = cv2_im.shape
-    center_x = 0
-    center_y = 0
+    #center_x = 0
+    #center_y = 0
+    x0 = -1
+    y0 = -1
+    x1 = -1
+    y1 = -1
+    label = '' 
+
     for obj in objs:
         x0, y0, x1, y1 = list(obj.bbox)
         x0, y0, x1, y1 = int(x0*width), int(y0*height), int(x1*width), int(y1*height)
@@ -133,11 +142,21 @@ def append_objs_to_img(cv2_im, objs, labels):
                              cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0), 2)
         center_x, center_y = (x1 - x0)/2, (y0 - y1)/2
         break
-
-    if len(objs) > 0:
-        print("({},{}) position".format(center_x, center_y))
-
     
+    
+    if len(objs) > 0:
+        track = (x0,y0,x1,y1,label)
+        if (track in remember) == False:
+            remember.clear()
+            remember.add(track)
+            print("[({},{}),({},{}) {}] position".format(track[0],track[1],
+                                                    track[2], track[3], 
+                                                    track[4]))
+        else:
+            print("Double Up-Glitch")
+    else:
+        print("No Object Detected")
+
     return cv2_im
 
 if __name__ == '__main__':
