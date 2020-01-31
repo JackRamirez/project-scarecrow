@@ -28,6 +28,17 @@ python3 detect.py \
   --labels ${TEST_DATA}/coco_labels.txt
 
 
+------
+.sh install
+
+sudo apt-get install python3-dev
+sudo apt-get install bluetooth libbluetooth-dev
+sudo python3 -m pip install pybluez
+
+
+---
+
+
 
 
 sudo python3 detect.py
@@ -45,7 +56,7 @@ import tflite_runtime.interpreter as tflite
 import sys
 import periphery
 import time
-# import bluetooth
+import bluetooth
 
 
 """_____________define_____________"""
@@ -373,18 +384,18 @@ class UI_EdgeTpuDevBoard(UI):
             pwm.enable()
             return pwm
 
-        #def initBluetooth(bd_addr, port):
-        #    bluetooth_socket = None
-        #    try:
-        #        bluetooth_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        #        bluetooth_socket.connect((bd_addr,port))
-        #    except bluetooth.btcommon.BluetoothError as message:
-        #        print(message)
-        #        if bluetooth_socket:
-        #            bluetooth_socket.send('0')
-        #            bluetooth_socket.close()
-        #    finally:
-        #        return bluetooth_socket
+        def initBluetooth(bd_addr, port):
+            bluetooth_socket = None
+            try:
+                bluetooth_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+                bluetooth_socket.connect((bd_addr,port))
+            except bluetooth.btcommon.BluetoothError as message:
+                print(message)
+                if bluetooth_socket:
+                    bluetooth_socket.send('0')
+                    bluetooth_socket.close()
+            finally:
+                return bluetooth_socket
 
 
         try:
@@ -396,7 +407,7 @@ class UI_EdgeTpuDevBoard(UI):
             self._bd_addr = BLUETOOTH_MODULE_ADDRESS
             self._bd_port = BLUETOOTH_MODULE_PORT
             self._bluetooth_socket = None
-            #self._bluetooth_socket = initBluetooth(self._bd_addr, self._bd_port)
+            self._bluetooth_socket = initBluetooth(self._bd_addr, self._bd_port)
         except GPIOError as e:
             print("Unable to access GPIO pins. Try running with sudo")
             sys.exit(1)
@@ -411,10 +422,10 @@ class UI_EdgeTpuDevBoard(UI):
                 self.setOutput(i, False)
             for x in self._OUTPUTS or [] + self._INPUTS or []: x.close()
             print("cleaned up OUTPUTS")
-        #if self._bluetooth_socket:
-        #    self._bluetooth_socket.send('0')
-        #    self._bluetooth_socket.close()
-        #    print("cleaned up Bluetooth")
+        if self._bluetooth_socket:
+            self._bluetooth_socket.send('0')
+            self._bluetooth_socket.close()
+            print("cleaned up Bluetooth")
 
 
     def setOutput(self, index, state):
@@ -429,12 +440,12 @@ class UI_EdgeTpuDevBoard(UI):
     def getInputState(self):
         return [_input.read() for _input in self._INPUTS]
          
-    #def sendBluetoothMessage(self, message):
-    #    try:
-    #        self._bluetooth_socket.send(message)
-    #    except Exception as e:
-    #        print("Bluetooth error:", e)
-    #        raise Exception('Turned off')
+    def sendBluetoothMessage(self, message):
+        try:
+            self._bluetooth_socket.send(message)
+        except Exception as e:
+            print("Bluetooth error:", e)
+            raise Exception('Turned off')
 
 
 def get_ui():
@@ -480,13 +491,15 @@ def relay_bluetooth_detection(ui, objs, width, height):
             ui.sendBluetoothMessage("</OFF/>")
         """
         print("({},{}) position".format(center_x, center_y))
-        ui.setOutput(0, True)
+        ui.sendBluetoothMessage("</OFF/>")
+        #ui.setOutput(0, True)
     else:
         """
         ui.sendBluetoothMessage("</OFF/>")
         """
+        ui.sendBluetoothMessage("</ON/>")
         print("no face detected")
-        ui.setOutput(0, False)
+        #ui.setOutput(0, False)
     
         
 
